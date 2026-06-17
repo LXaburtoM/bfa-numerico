@@ -36,7 +36,7 @@ public class PreguntaProblema {
     private String respuestaCorrecta;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @DescriptionsList
+    @DescriptionsList(descriptionProperties = "nombre")
     private N2Problemas subtestN2;
 
     public String getIdPregunta() { return idPregunta; }

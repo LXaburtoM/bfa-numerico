@@ -32,7 +32,7 @@ public class PreguntaOperacion {
     private String respuestaCorrecta;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @DescriptionsList
+    @DescriptionsList(descriptionProperties = "nombre")
     private N1Operaciones subtestN1;
 
     public String getIdPregunta() { return idPregunta; }

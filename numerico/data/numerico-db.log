@@ -1,0 +1,25 @@
+/*C1*/SET SCHEMA SYSTEM_LOBS
+INSERT INTO BLOCKS VALUES(0,2147483647,0)
+COMMIT
+/*C2*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C3*/SET SCHEMA PUBLIC
+create table estudiante_evaluado (idEstudiante varchar(32) not null, edad integer, identificacion varchar(20), nombreCompleto varchar(150), primary key (idEstudiante))
+create table IMAGES (ID varchar(32) not null, GALLERY varchar(32), image varbinary(16777216), primary key (ID))
+create table n1_operaciones (tipoOperaciones varchar(50), id varchar(32) not null, primary key (id))
+create table n2_problemas (nivelDificultad varchar(50), id varchar(32) not null, primary key (id))
+create table OXDISCUSSIONCOMMENTS (id varchar(32) not null, "COMMENT" clob(16777216), discussionId varchar(32), time timestamp, userName varchar(30), primary key (id))
+create table pregunta_operacion (idPregunta varchar(32) not null, enunciado varchar(255), orden integer, respuestaCorrecta varchar(1), subtestN1_id varchar(32), primary key (idPregunta))
+create table pregunta_problema (idPregunta varchar(32) not null, contexto varchar(255), enunciado varchar(255), orden integer, respuestaCorrecta varchar(1), subtestN2_id varchar(32), primary key (idPregunta))
+create table resultado_numerico (idResultado varchar(32) not null, aciertos integer, errores integer, omisiones integer, percentil integer, puntajeDirecto double, evaluado_idEstudiante varchar(32) not null, subtestAplicado_id varchar(32) not null, primary key (idResultado))
+create table SubtestNumerico (id varchar(32) not null, nombre varchar(100), tiempoLimite integer, totalItems integer, primary key (id))
+create table Usuario (id varchar(32) not null, password varchar(100), rol integer, username varchar(50), primary key (id))
+alter table estudiante_evaluado add constraint UK_amry7oeun3bjrbxf0beqwwlv2 unique (identificacion)
+create index IDXbhlx4vunn24ym1tbrlgq8g30m on OXDISCUSSIONCOMMENTS (discussionId)
+alter table Usuario add constraint UK_471i15k6vbj1lfsfb19getcdi unique (username)
+alter table n1_operaciones add constraint FKr0v3208ccngwqh0jonepqimnk foreign key (id) references SubtestNumerico
+alter table n2_problemas add constraint FKm66pg2pvknxnjgqy4g3etrc7b foreign key (id) references SubtestNumerico
+alter table pregunta_operacion add constraint FKkl3hbic9g54kdo5rjtes7kdjl foreign key (subtestN1_id) references n1_operaciones
+alter table pregunta_problema add constraint FKdx88u96xos9dey45hv83l8icm foreign key (subtestN2_id) references n2_problemas
+alter table resultado_numerico add constraint FK3ri7dcivphotmlo1m8ogkkbsw foreign key (evaluado_idEstudiante) references estudiante_evaluado
+alter table resultado_numerico add constraint FK6odtj92mtb5s1qcoj9085x7mv foreign key (subtestAplicado_id) references SubtestNumerico
