@@ -3,14 +3,17 @@ package ni.edu.uam.numerico.modelo;
 import javax.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.openxava.annotations.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Entidad encargada de modelar los datos personales del estudiante que realiza los subtests.
+ * Entidad encargada de modelar los datos personales del estudiante.
  * @author Estudiantes de Ingeniería en Sistemas
- * @version 1.0
+ * @version 2.0
  */
 @Entity
 @Table(name = "estudiante_evaluado")
+@Getter @Setter
 public class EstudianteEvaluado {
 
     @Id
@@ -30,36 +33,4 @@ public class EstudianteEvaluado {
 
     @Required
     private Integer edad;
-
-    public String getIdEstudiante() {
-        return idEstudiante;
-    }
-
-    public void setIdEstudiante(String idEstudiante) {
-        this.idEstudiante = idEstudiante;
-    }
-
-    public String getIdentificacion() {
-        return identificacion;
-    }
-
-    public void setIdentificacion(String identificacion) {
-        this.identificacion = identificacion;
-    }
-
-    public String getNombreCompleto() {
-        return nombreCompleto;
-    }
-
-    public void setNombreCompleto(String nombreCompleto) {
-        this.nombreCompleto = nombreCompleto;
-    }
-
-    public Integer getEdad() {
-        return edad;
-    }
-
-    public void setEdad(Integer edad) {
-        this.edad = edad;
-    }
 }

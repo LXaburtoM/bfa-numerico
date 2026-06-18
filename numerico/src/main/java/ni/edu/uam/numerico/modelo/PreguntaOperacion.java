@@ -3,14 +3,17 @@ package ni.edu.uam.numerico.modelo;
 import javax.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.openxava.annotations.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Entidad encargada del almacenamiento de los reactivos aritméticos del Subtest N1.
+ * Reactivos aritméticos del Subtest N1.
  * @author Estudiantes de Ingeniería en Sistemas
- * @version 1.0
+ * @version 2.0
  */
 @Entity
 @Table(name = "pregunta_operacion")
+@Getter @Setter
 public class PreguntaOperacion {
 
     @Id
@@ -34,15 +37,4 @@ public class PreguntaOperacion {
     @ManyToOne(fetch = FetchType.LAZY)
     @DescriptionsList(descriptionProperties = "nombre")
     private N1Operaciones subtestN1;
-
-    public String getIdPregunta() { return idPregunta; }
-    public void setIdPregunta(String idPregunta) { this.idPregunta = idPregunta; }
-    public Integer getOrden() { return orden; }
-    public void setOrden(Integer orden) { this.orden = orden; }
-    public String getEnunciado() { return enunciado; }
-    public void setEnunciado(String enunciado) { this.enunciado = enunciado; }
-    public String getRespuestaCorrecta() { return respuestaCorrecta; }
-    public void setRespuestaCorrecta(String respuestaCorrecta) { this.respuestaCorrecta = respuestaCorrecta; }
-    public N1Operaciones getSubtestN1() { return subtestN1; }
-    public void setSubtestN1(N1Operaciones subtestN1) { this.subtestN1 = subtestN1; }
 }

@@ -3,14 +3,17 @@ package ni.edu.uam.numerico.modelo;
 import javax.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.openxava.annotations.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Entidad encargada del almacenamiento de los casos lógicos del Subtest N2.
+ * Casos lógicos del Subtest N2.
  * @author Estudiantes de Ingeniería en Sistemas
- * @version 1.0
+ * @version 2.0
  */
 @Entity
 @Table(name = "pregunta_problema")
+@Getter @Setter
 public class PreguntaProblema {
 
     @Id
@@ -38,17 +41,4 @@ public class PreguntaProblema {
     @ManyToOne(fetch = FetchType.LAZY)
     @DescriptionsList(descriptionProperties = "nombre")
     private N2Problemas subtestN2;
-
-    public String getIdPregunta() { return idPregunta; }
-    public void setIdPregunta(String idPregunta) { this.idPregunta = idPregunta; }
-    public Integer getOrden() { return orden; }
-    public void setOrden(Integer orden) { this.orden = orden; }
-    public String getContexto() { return contexto; }
-    public void setContexto(String contexto) { this.contexto = contexto; }
-    public String getEnunciado() { return enunciado; }
-    public void setEnunciado(String enunciado) { this.enunciado = enunciado; }
-    public String getRespuestaCorrecta() { return respuestaCorrecta; }
-    public void setRespuestaCorrecta(String respuestaCorrecta) { this.respuestaCorrecta = respuestaCorrecta; }
-    public N2Problemas getSubtestN2() { return subtestN2; }
-    public void setSubtestN2(N2Problemas subtestN2) { this.subtestN2 = subtestN2; }
 }

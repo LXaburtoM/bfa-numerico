@@ -2,29 +2,25 @@ package ni.edu.uam.numerico.modelo;
 
 import javax.persistence.*;
 import org.openxava.annotations.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Representa específicamente el Subtest N2 orientado a la resolución de problemas lógicos.
+ * Representa específicamente el Subtest N2.
  * @author Estudiantes de Ingeniería en Sistemas
- * @version 1.0
+ * @version 2.0
  */
 @Entity
 @Table(name = "n2_problemas")
+@Getter @Setter
 public class N2Problemas extends SubtestNumerico {
 
     @Required
     @Column(length = 50)
     private String nivelDificultad;
 
-    /**
-     * Aplica la fórmula psicométrica clásica con penalización.
-     */
     @Override
     public double calcularPuntajeDirecto(int aciertos, int errores) {
         return aciertos - (errores * 0.25);
     }
-
-    public String getNivelDificultad() { return nivelDificultad; }
-    public void setNivelDificultad(String nivelDificultad) { this.nivelDificultad = nivelDificultad; }
 }
-

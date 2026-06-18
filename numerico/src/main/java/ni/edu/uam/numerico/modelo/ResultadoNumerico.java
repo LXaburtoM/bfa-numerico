@@ -3,15 +3,17 @@ package ni.edu.uam.numerico.modelo;
 import javax.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.openxava.annotations.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Entidad núcleo del negocio que procesa las respuestas consolidadas, calcula
- * automáticamente los puntajes y convierte las métricas a percentiles.
+ * Entidad núcleo del negocio que procesa las respuestas consolidadas.
  * @author Estudiantes de Ingeniería en Sistemas
- * @version 1.0
+ * @version 2.0
  */
 @Entity
 @Table(name = "resultado_numerico")
+@Getter @Setter
 public class ResultadoNumerico {
 
     @Id
@@ -48,7 +50,7 @@ public class ResultadoNumerico {
     @PreUpdate
     public void procesarResultado() {
         if (this.aciertos < 0 || this.errores < 0 || this.omisiones < 0) {
-            throw new IllegalArgumentException("Las métricas (aciertos, errores, omisiones) no pueden ser negativas.");
+            throw new IllegalArgumentException("Las métricas no pueden ser negativas.");
         }
 
         if (this.subtestAplicado != null) {
@@ -63,7 +65,6 @@ public class ResultadoNumerico {
             return;
         }
 
-        // Aquí es donde marcaba rojo porque EstudianteEvaluado no tenía getEdad()
         int edadEstudiante = this.evaluado.getEdad();
 
         if (edadEstudiante <= 12) {
@@ -77,22 +78,4 @@ public class ResultadoNumerico {
         if (this.percentil > 99) this.percentil = 99;
         if (this.percentil < 1) this.percentil = 1;
     }
-
-    // Getters y Setters
-    public String getIdResultado() { return idResultado; }
-    public void setIdResultado(String idResultado) { this.idResultado = idResultado; }
-    public EstudianteEvaluado getEvaluado() { return evaluado; }
-    public void setEvaluado(EstudianteEvaluado evaluado) { this.evaluado = evaluado; }
-    public SubtestNumerico getSubtestAplicado() { return subtestAplicado; }
-    public void setSubtestAplicado(SubtestNumerico subtestAplicado) { this.subtestAplicado = subtestAplicado; }
-    public Integer getAciertos() { return aciertos; }
-    public void setAciertos(Integer aciertos) { this.aciertos = aciertos; }
-    public Integer getErrores() { return errores; }
-    public void setErrores(Integer errores) { this.errores = errores; }
-    public Integer getOmisiones() { return omisiones; }
-    public void setOmisiones(Integer omisiones) { this.omisiones = omisiones; }
-    public Double getPuntajeDirecto() { return puntajeDirecto; }
-    public void setPuntajeDirecto(Double puntajeDirecto) { this.puntajeDirecto = puntajeDirecto; }
-    public Integer getPercentil() { return percentil; }
-    public void setPercentil(Integer percentil) { this.percentil = percentil; }
 }
