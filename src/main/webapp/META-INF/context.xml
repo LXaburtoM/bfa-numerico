@@ -17,13 +17,13 @@
 	correspodiente a tu base de datos al pom.xml de tu proyecto.	
 	-->
 	 
-	<!-- HSQLDB -->   	
+	<!-- HSQLDB
     <Resource name="jdbc/numericoDS" auth="Container" type="javax.sql.DataSource"
 	      maxTotal="20" maxIdle="5" maxWaitMillis="10000"
 	      username="sa" password="" 
 	      driverClassName="org.hsqldb.jdbc.JDBCDriver"
 	      url="jdbc:hsqldb:hsql://localhost:1666"/>
-	      
+	-->
 	<!-- MySQL       
     <Resource name="jdbc/numericoDS" auth="Container" type="javax.sql.DataSource"
 	      maxTotal="20" maxIdle="5" maxWaitMillis="10000"
@@ -32,13 +32,13 @@
 	      url="jdbc:mysql://localhost:3306/numericodb"/>	      
 	-->      
 	
-	<!-- PostgreSQL 
+	<!-- PostgreSQL -->
 	<Resource name="jdbc/numericoDS" auth="Container" type="javax.sql.DataSource"
 	      maxTotal="20" maxIdle="5" maxWaitMillis="10000"
-	      username="postgres" password="" 
+	      username="postgres" password="1234"
 	      driverClassName="org.postgresql.Driver" 
-	      url="jdbc:postgresql://localhost/numericodb"/>
-	-->
+	      url="jdbc:postgresql://localhost/bfanumericobd"/>
+
 	
 	<!-- Oracle 
 	<Resource name="jdbc/numericoDS" auth="Container" type="javax.sql.DataSource"
