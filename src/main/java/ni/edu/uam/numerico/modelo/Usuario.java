@@ -7,9 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Entidad que representa a los usuarios del sistema.
- * @author Estudiantes de Ingeniería en Sistemas
- * @version 2.0
+ * Usuario administrador del sistema (único rol existente: gestiona
+ * estudiantes evaluados, reactivos y resultados).
  */
 @Entity
 @Table(name = "usuario")
@@ -33,7 +32,6 @@ public class Usuario {
     private String password;
 
     @Required
-    private Rol rol;
-
-    public enum Rol { ADMINISTRADOR, PSICOLOGO, SUJETO }
+    @Column(length = 100)
+    private String nombreCompleto;
 }
