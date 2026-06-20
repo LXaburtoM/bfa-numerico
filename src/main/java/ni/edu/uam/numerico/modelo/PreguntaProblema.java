@@ -48,7 +48,7 @@ public class PreguntaProblema {
     private String enunciado; // cuadro grande para redactar el problema libremente
 
     @Required
-    @Column(length = 1)
+    @Column(length = 3)
     private String respuestaCorrecta;
 
     public enum NivelDificultad { FACIL, MEDIO, DIFICIL }

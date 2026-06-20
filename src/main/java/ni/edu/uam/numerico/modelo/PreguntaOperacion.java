@@ -46,6 +46,6 @@ public class PreguntaOperacion {
     private String enunciado;
 
     @Required
-    @Column(length = 1)
+    @Column(length = 3)
     private String respuestaCorrecta;
 }
