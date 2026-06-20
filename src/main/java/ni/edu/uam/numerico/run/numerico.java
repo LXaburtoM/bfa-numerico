@@ -3,7 +3,7 @@ package ni.edu.uam.numerico.run;
 import org.openxava.util.*;
 
 /**
- * Ejecuta esta clase para arrancar la aplicación.
+ * haciendo inserts
  */
 
 public class numerico {
