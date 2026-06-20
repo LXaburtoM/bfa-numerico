@@ -7,9 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Casos lógicos del Subtest N2.
- * @author Estudiantes de Ingeniería en Sistemas
- * @version 2.0
+ * Reactivo del Subtest N2 (problemas lógicos).
+ * Incorpora la configuración del subtest junto a cada reactivo.
  */
 @Entity
 @Table(name = "pregunta_problema")
@@ -27,18 +26,30 @@ public class PreguntaProblema {
     private Integer orden;
 
     @Required
+    @Column(length = 100)
+    private String nombreSubtest; // ej. "Subtest N2 - Problemas Lógicos"
+
+    @Required
+    private Integer tiempoLimiteMinutos;
+
+    @Required
+    private Integer totalPreguntas;
+
+    @Required
+    private NivelDificultad nivelDificultad;
+
+    @Required
     @Stereotype("TEXT_AREA")
     private String contexto;
 
     @Required
     @Stereotype("TEXT_AREA")
-    private String enunciado;
+    @Column(length = 1500)
+    private String enunciado; // cuadro grande para redactar el problema libremente
 
     @Required
     @Column(length = 1)
     private String respuestaCorrecta;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @DescriptionsList(descriptionProperties = "nombre")
-    private N2Problemas subtestN2;
+    public enum NivelDificultad { FACIL, MEDIO, DIFICIL }
 }
