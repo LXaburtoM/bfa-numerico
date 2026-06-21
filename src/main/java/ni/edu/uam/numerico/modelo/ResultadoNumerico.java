@@ -36,9 +36,6 @@ public class ResultadoNumerico {
     @Required
     private Integer errores;
 
-    @Required
-    private Integer omisiones;
-
     @ReadOnly
     private Double puntajeDirecto;
 
@@ -48,15 +45,15 @@ public class ResultadoNumerico {
     @PrePersist
     @PreUpdate
     public void procesarResultado() {
-        if (aciertos < 0 || errores < 0 || omisiones < 0) {
+        if (aciertos < 0 || errores < 0) {
             throw new IllegalArgumentException("Las métricas no pueden ser negativas.");
         }
 
         if (subtest != null && subtest.getTotalPreguntas() != null) {
-            int totalRespondido = aciertos + errores + omisiones;
+            int totalRespondido = aciertos + errores;
             if (totalRespondido > subtest.getTotalPreguntas()) {
                 throw new IllegalArgumentException(
-                        "Aciertos + errores + omisiones (" + totalRespondido +
+                        "Aciertos + errores (" + totalRespondido +
                                 ") no puede superar el total de preguntas del subtest (" +
                                 subtest.getTotalPreguntas() + ")."
                 );
