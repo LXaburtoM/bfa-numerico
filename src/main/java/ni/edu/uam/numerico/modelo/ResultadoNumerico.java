@@ -6,12 +6,6 @@ import org.openxava.annotations.*;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Entidad núcleo que consolida el resultado de un subtest aplicado a un evaluado.
- * Ya no depende de SubtestNumerico/N1Operaciones/N2Problemas: el tipo de prueba
- * se indica directamente con el enum TipoTest, y el cálculo de puntaje se
- * resuelve aquí mismo según ese tipo.
- */
 @Entity
 @Table(name = "resultado_numerico")
 @Getter @Setter
@@ -28,8 +22,13 @@ public class ResultadoNumerico {
     @DescriptionsList(descriptionProperties = "nombre, apellido")
     private EstudianteEvaluado evaluado;
 
-    @Required
-    private TipoTest tipoTest;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @DescriptionsList(descriptionProperties = "nombre")
+    private ConfiguracionSubtest subtest;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @DescriptionsList(descriptionProperties = "username")
+    private Usuario capturadoPor;
 
     @Required
     private Integer aciertos;
@@ -38,7 +37,7 @@ public class ResultadoNumerico {
     private Integer errores;
 
     @Required
-    private Integer omisiones; // preguntas no respondidas (ni acierto ni error)
+    private Integer omisiones;
 
     @ReadOnly
     private Double puntajeDirecto;
@@ -52,15 +51,27 @@ public class ResultadoNumerico {
         if (aciertos < 0 || errores < 0 || omisiones < 0) {
             throw new IllegalArgumentException("Las métricas no pueden ser negativas.");
         }
+
+        if (subtest != null && subtest.getTotalPreguntas() != null) {
+            int totalRespondido = aciertos + errores + omisiones;
+            if (totalRespondido > subtest.getTotalPreguntas()) {
+                throw new IllegalArgumentException(
+                        "Aciertos + errores + omisiones (" + totalRespondido +
+                                ") no puede superar el total de preguntas del subtest (" +
+                                subtest.getTotalPreguntas() + ")."
+                );
+            }
+        }
+
         this.puntajeDirecto = calcularPuntajeDirecto();
         convertirBaremosAPercentil();
     }
 
     private double calcularPuntajeDirecto() {
-        if (tipoTest == TipoTest.N1_OPERACIONES) {
-            return aciertos; // N1: solo aciertos
+        if (subtest.getTipoTest() == ConfiguracionSubtest.TipoTest.N1_OPERACIONES) {
+            return aciertos;
         }
-        return aciertos - (errores * 0.25); // N2: penaliza error
+        return aciertos - (errores * 0.25);
     }
 
     private void convertirBaremosAPercentil() {
@@ -76,6 +87,4 @@ public class ResultadoNumerico {
         if (percentil > 99) percentil = 99;
         if (percentil < 1) percentil = 1;
     }
-
-    public enum TipoTest { N1_OPERACIONES, N2_PROBLEMAS }
 }
