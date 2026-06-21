@@ -1,5 +1,7 @@
 package ni.edu.uam.numerico.modelo;
 
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import javax.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.openxava.annotations.*;
@@ -18,7 +20,8 @@ public class PreguntaProblema {
     @Hidden
     private String idPregunta;
 
-    @Required
+    @Generated(GenerationTime.INSERT)
+    @Column(insertable = false, updatable = false)
     private Integer orden;
 
     @Required
