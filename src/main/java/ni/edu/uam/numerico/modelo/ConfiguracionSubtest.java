@@ -25,7 +25,8 @@ public class ConfiguracionSubtest {
     private String idConfiguracion;
 
     @Required
-    @Column(unique = true)
+    @Enumerated(EnumType.STRING)
+    @Column(unique = true, length = 20)
     private TipoTest tipoTest;
 
     @Required
@@ -35,7 +36,7 @@ public class ConfiguracionSubtest {
     @Required
     private Integer tiempoLimiteMinutos;
 
-    @Formula("(CASE WHEN tipo_test = 'N1_OPERACIONES' " +
+    @Formula("(CASE WHEN tipotest = 'N1_OPERACIONES' " +
             " THEN (SELECT COUNT(*) FROM pregunta_operacion) " +
             " ELSE (SELECT COUNT(*) FROM pregunta_problema) END)")
     @ReadOnly
