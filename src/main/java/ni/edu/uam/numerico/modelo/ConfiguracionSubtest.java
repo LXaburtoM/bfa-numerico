@@ -1,6 +1,7 @@
 package ni.edu.uam.numerico.modelo;
 
 import javax.persistence.*;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.GenericGenerator;
 import org.openxava.annotations.*;
 import lombok.Getter;
@@ -8,8 +9,8 @@ import lombok.Setter;
 
 /**
  * Configuración única por tipo de subtest (N1 o N2).
- * Aquí vive lo que describe al subtest como grupo: nombre, tiempo límite
- * y total de preguntas. No se repite por cada reactivo.
+ * totalPreguntas ya no se escribe a mano: se calcula en vivo
+ * contando las preguntas reales cargadas en cada banco.
  */
 @Entity
 @Table(name = "configuracion_subtest")
@@ -29,12 +30,15 @@ public class ConfiguracionSubtest {
 
     @Required
     @Column(length = 100)
-    private String nombre; // ej. "Subtest N1 - Operaciones Aritméticas"
+    private String nombre;
 
     @Required
     private Integer tiempoLimiteMinutos;
 
-    @Required
+    @Formula("(CASE WHEN tipo_test = 'N1_OPERACIONES' " +
+            " THEN (SELECT COUNT(*) FROM pregunta_operacion) " +
+            " ELSE (SELECT COUNT(*) FROM pregunta_problema) END)")
+    @ReadOnly
     private Integer totalPreguntas;
 
     public enum TipoTest { N1_OPERACIONES, N2_PROBLEMAS }
