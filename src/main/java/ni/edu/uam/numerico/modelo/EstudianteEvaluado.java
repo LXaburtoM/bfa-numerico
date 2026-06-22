@@ -1,6 +1,7 @@
 package ni.edu.uam.numerico.modelo;
 
 import javax.persistence.*;
+import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -41,6 +42,7 @@ public class EstudianteEvaluado {
 
     @Required
     @Temporal(TemporalType.DATE)
+    @PastOrPresent(message = "La fecha de ingreso no puede ser una fecha futura.")
     private Date fechaIngreso;
 
     @Column(length = 150)
