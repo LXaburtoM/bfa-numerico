@@ -7,11 +7,6 @@ import org.openxava.annotations.*;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Configuración única por tipo de subtest (N1 o N2).
- * totalPreguntas ya no se escribe a mano: se calcula en vivo
- * contando las preguntas reales cargadas en cada banco.
- */
 @Entity
 @Table(name = "configuracion_subtest")
 @Getter @Setter
@@ -26,7 +21,7 @@ public class ConfiguracionSubtest {
 
     @Required
     @Enumerated(EnumType.STRING)
-    @Column(unique = true, length = 20)
+    @Column(length = 20)
     private TipoTest tipoTest;
 
     @Required
@@ -34,11 +29,11 @@ public class ConfiguracionSubtest {
     private String nombre;
 
     @Required
-    private Integer tiempoLimiteMinutos;
+    private Integer tiempoLimiteMinutos; // 6 según el manual real, pero editable por si cambias de instrumento
 
     @Formula("(CASE WHEN tipotest = 'N1_OPERACIONES' " +
-            " THEN (SELECT COUNT(*) FROM pregunta_operacion) " +
-            " ELSE (SELECT COUNT(*) FROM pregunta_problema) END)")
+            " THEN (SELECT COUNT(*) FROM pregunta_operacion po WHERE po.subtest_id = idconfiguracion) " +
+            " ELSE (SELECT COUNT(*) FROM pregunta_problema pp WHERE pp.subtest_id = idconfiguracion) END)")
     @ReadOnly
     private Integer totalPreguntas;
 

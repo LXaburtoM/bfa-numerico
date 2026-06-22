@@ -1,8 +1,8 @@
 package ni.edu.uam.numerico.modelo;
 
+import javax.persistence.*;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
-import javax.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.openxava.annotations.*;
 import lombok.Getter;
@@ -25,15 +25,23 @@ public class PreguntaOperacion {
     private Integer orden;
 
     @Required
-    @Stereotype("TEXT_AREA")
-    @Column(length = 1000)
-    private String tipoOperaciones; // descripción del tipo de operación (suma, resta, series, etc.)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @DescriptionsList(descriptionProperties = "nombre")
+    @JoinColumn(name = "subtest_id")
+    private ConfiguracionSubtest subtest;
 
     @Required
     @Stereotype("TEXT_AREA")
-    private String enunciado;
+    private String enunciado; // ej. "3 + ? = 8"
+
+    @Required @Column(length = 30) private String opcionA;
+    @Required @Column(length = 30) private String opcionB;
+    @Required @Column(length = 30) private String opcionC;
+    @Required @Column(length = 30) private String opcionD;
 
     @Required
-    @Column(length = 3)
-    private String respuestaCorrecta;
+    @Enumerated(EnumType.STRING)
+    private RespuestaCorrecta respuestaCorrecta;
+
+    public enum RespuestaCorrecta { A, B, C, D }
 }
