@@ -1151,7 +1151,6 @@ if (btnPrevQuestion) {
         }
     });
 }
-
 const btnFinalizarTest = document.getElementById("btn-finalizar-test");
 
 if (btnFinalizarTest) {
@@ -1161,29 +1160,61 @@ if (btnFinalizarTest) {
         let aciertos = 0;
         let errores = 0;
 
+        let resumenHtml = `
+            <div style="text-align:left;">
+                <p>La evaluación fue completada correctamente.</p>
+                <hr>
+        `;
+
         preguntasDemo.forEach((pregunta, index) => {
-            const respuestaEstudiante = normalizarRespuesta(respuestasEstudiante[index]);
+            const respuestaEstudianteOriginal = respuestasEstudiante[index] || "";
+            const respuestaEstudiante = normalizarRespuesta(respuestaEstudianteOriginal);
             const respuestaCorrecta = normalizarRespuesta(pregunta.respuestaCorrecta);
 
-            if (respuestaEstudiante === respuestaCorrecta) {
+            const esCorrecta = respuestaEstudiante === respuestaCorrecta;
+
+            if (esCorrecta) {
                 aciertos++;
             } else {
                 errores++;
             }
+
+            resumenHtml += `
+                <div style="margin-bottom:14px;">
+                    <strong>Pregunta ${index + 1}</strong><br>
+                    <span>${pregunta.texto}</span><br>
+                    <span><strong>Tu respuesta:</strong> ${respuestaEstudianteOriginal || "Sin responder"}</span><br>
+                    <span><strong>Respuesta correcta:</strong> ${pregunta.respuestaCorrecta}</span><br>
+                    <span style="font-weight:600; color:${esCorrecta ? "#2e7d32" : "#8f1d1d"};">
+                        ${esCorrecta ? "Correcta" : "Incorrecta"}
+                    </span>
+                </div>
+            `;
         });
 
-        const puntajeDirecto = aciertos;
+        const subtestSeleccionado = document.getElementById("test-subtest").value;
+
+        let puntajeDirecto = aciertos;
+
+        if (subtestSeleccionado === "problemas") {
+            puntajeDirecto = aciertos - (errores * 0.25);
+            if (puntajeDirecto < 0) puntajeDirecto = 0;
+        }
+
+        resumenHtml += `
+                <hr>
+                <strong>Resultado final:</strong><br>
+                Aciertos: ${aciertos}<br>
+                Errores: ${errores}<br>
+                Puntaje directo: ${puntajeDirecto}
+            </div>
+        `;
 
         Swal.fire({
             icon: "success",
             title: "Test finalizado",
-            html: `
-                <p>La evaluación fue completada correctamente.</p>
-                <strong>Resultado:</strong><br>
-                Aciertos: ${aciertos}<br>
-                Errores: ${errores}<br>
-                Puntaje directo: ${puntajeDirecto}
-            `,
+            html: resumenHtml,
+            width: 700,
             confirmButtonText: "Guardar resultado"
         }).then(() => {
             salirModoTest();
