@@ -153,6 +153,13 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
+
+                <li>
+                    <a href="#" class="sidebar-nav-link" data-section="aplicar-test">
+                        <i class="bi bi-clipboard-check-fill sidebar-nav-icon"></i>
+                        <span>Aplicar Test</span>
+                    </a>
+                </li>
             </ul>
 
             <p class="sidebar-nav-group-label">Gestión</p>
@@ -375,6 +382,120 @@
             </div>
 
         </section><!-- /#section-dashboard -->
+
+        <!-- ╔══════════════════════════════════╗
+     ║  APLICAR TEST                    ║
+     ╚══════════════════════════════════╝ -->
+        <section class="app-section d-none" id="section-aplicar-test">
+
+            <div class="section-header">
+                <div>
+                    <p class="section-eyebrow">Evaluación</p>
+                    <h2 class="section-title">Aplicar Test</h2>
+                </div>
+            </div>
+
+            <div class="dash-panel mb-4">
+                <div class="dash-panel-header">
+                    <h5 class="dash-panel-title">
+                        <i class="bi bi-clipboard-check-fill me-2"></i>Nueva evaluación
+                    </h5>
+                </div>
+
+                <div class="dash-panel-body">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label bfa-label" for="test-estudiante">
+                                Estudiante evaluado
+                            </label>
+                            <select class="form-select bfa-select" id="test-estudiante">
+                                <option value="">Selecciona un estudiante…</option>
+                                <option value="1">Mariana Gutiérrez Solís</option>
+                                <option value="2">Carlos Mendoza Reyes</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label bfa-label" for="test-subtest">
+                                Tipo de subtest
+                            </label>
+                            <select class="form-select bfa-select" id="test-subtest">
+                                <option value="">Selecciona un subtest…</option>
+                                <option value="operaciones">Subtest N1 - Operaciones Aritméticas</option>
+                                <option value="problemas">Subtest N2 - Problemas Lógicos</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="test-info-card mt-4">
+                        <div>
+                            <p class="test-info-kicker">Antes de iniciar</p>
+                            <h4>Preparación del test</h4>
+                            <p>
+                                Selecciona al estudiante y el tipo de subtest que se aplicará.
+                                Luego podrás iniciar la evaluación y registrar las respuestas.
+                            </p>
+                        </div>
+
+                        <div class="test-info-meta">
+                            <span><i class="bi bi-clock"></i> 30 minutos</span>
+                            <span><i class="bi bi-list-check"></i> 20 preguntas</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-end">
+                        <button class="btn btn-section-add" id="btn-iniciar-test">
+                            <i class="bi bi-play-fill me-2"></i>Iniciar evaluación
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dash-panel d-none" id="test-runner">
+                <div class="dash-panel-header">
+                    <h5 class="dash-panel-title">
+                        <i class="bi bi-pencil-square me-2"></i>Evaluación en curso
+                    </h5>
+                    <span class="section-date" id="test-progress">Pregunta 1 de 3</span>
+                </div>
+
+                <div class="dash-panel-body">
+                    <div class="test-question-card">
+                        <p class="test-question-label" id="test-question-label">Pregunta 1</p>
+                        <h4 id="test-question-text">
+                            Complete la serie: 2, 4, 6, 8, ¿cuál es el siguiente número?
+                        </h4>
+
+                        <label class="form-label bfa-label mt-3" for="test-answer">
+                            Respuesta del estudiante
+                        </label>
+                        <input
+                                type="text"
+                                class="form-control bfa-input"
+                                id="test-answer"
+                                placeholder="Escribe la respuesta..."
+                        />
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <button class="btn bfa-btn-cancel" id="btn-prev-question">
+                            <i class="bi bi-arrow-left me-1"></i>Anterior
+                        </button>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn bfa-btn-cancel" id="btn-next-question">
+                                Siguiente<i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+
+                            <button class="btn btn-section-add" id="btn-finalizar-test">
+                                <i class="bi bi-check2-circle me-1"></i>Finalizar test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section><!-- /#section-aplicar-test -->
 
 
         <!-- ╔══════════════════════════════════╗

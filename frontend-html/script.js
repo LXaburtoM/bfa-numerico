@@ -982,3 +982,211 @@ document.querySelectorAll('.modal').forEach(modal => {
   /* Limpiar el formulario de login por si acaso */
   $('login-form').reset();
 })();
+// ══════════════════════════════════════════════════════════
+// APLICAR TEST - FLUJO DE EVALUACIÓN
+// ══════════════════════════════════════════════════════════
+
+let testPreguntaActual = 0;
+let respuestasEstudiante = [];
+
+const preguntasDemo = [
+    {
+        texto: "Complete la serie: 2, 4, 6, 8, ¿cuál es el siguiente número?",
+        respuestaCorrecta: "10",
+        dificultad: "Fácil"
+    },
+    {
+        texto: "Resuelva la operación: 15 + 7 - 3",
+        respuestaCorrecta: "19",
+        dificultad: "Medio"
+    },
+    {
+        texto: "Si una persona compra 3 cuadernos de C$20 cada uno, ¿cuánto paga en total?",
+        respuestaCorrecta: "60",
+        dificultad: "Fácil"
+    }
+];
+
+function normalizarRespuesta(valor) {
+    return String(valor).trim().toLowerCase();
+}
+
+function entrarModoTest() {
+    document.body.classList.add("modo-test-activo");
+
+    const mainApp = document.getElementById("main-app");
+    if (mainApp) {
+        mainApp.classList.add("test-fullscreen");
+    }
+
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {
+            console.log("Pantalla completa no activada por el navegador.");
+        });
+    }
+}
+
+function salirModoTest() {
+    document.body.classList.remove("modo-test-activo");
+
+    const mainApp = document.getElementById("main-app");
+    if (mainApp) {
+        mainApp.classList.remove("test-fullscreen");
+    }
+
+    if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {
+            console.log("No se pudo salir de pantalla completa.");
+        });
+    }
+}
+
+function guardarRespuestaActual() {
+    const answer = document.getElementById("test-answer");
+
+    if (answer) {
+        respuestasEstudiante[testPreguntaActual] = answer.value;
+    }
+}
+
+function mostrarPreguntaTest() {
+    const pregunta = preguntasDemo[testPreguntaActual];
+
+    const label = document.getElementById("test-question-label");
+    const text = document.getElementById("test-question-text");
+    const progress = document.getElementById("test-progress");
+    const answer = document.getElementById("test-answer");
+    const btnNext = document.getElementById("btn-next-question");
+    const btnFinalizar = document.getElementById("btn-finalizar-test");
+
+    if (!label || !text || !progress || !answer) return;
+
+    label.textContent = `Pregunta ${testPreguntaActual + 1}`;
+    text.textContent = pregunta.texto;
+    progress.textContent = `Pregunta ${testPreguntaActual + 1} de ${preguntasDemo.length}`;
+    answer.value = respuestasEstudiante[testPreguntaActual] || "";
+
+    let dificultadBadge = document.getElementById("test-dificultad");
+
+    if (!dificultadBadge) {
+        dificultadBadge = document.createElement("span");
+        dificultadBadge.id = "test-dificultad";
+        dificultadBadge.className = "test-difficulty-badge";
+        label.insertAdjacentElement("afterend", dificultadBadge);
+    }
+
+    dificultadBadge.textContent = `Dificultad: ${pregunta.dificultad}`;
+
+    const esUltima = testPreguntaActual === preguntasDemo.length - 1;
+
+    if (btnNext) {
+        btnNext.classList.toggle("d-none", esUltima);
+    }
+
+    if (btnFinalizar) {
+        btnFinalizar.classList.toggle("d-none", !esUltima);
+    }
+
+    if (esUltima) {
+        progress.textContent = `Última pregunta (${testPreguntaActual + 1} de ${preguntasDemo.length})`;
+    }
+}
+
+const btnIniciarTest = document.getElementById("btn-iniciar-test");
+
+if (btnIniciarTest) {
+    btnIniciarTest.addEventListener("click", function () {
+        const estudiante = document.getElementById("test-estudiante").value;
+        const subtest = document.getElementById("test-subtest").value;
+        const runner = document.getElementById("test-runner");
+
+        if (!estudiante || !subtest) {
+            Swal.fire({
+                icon: "warning",
+                title: "Faltan datos",
+                text: "Selecciona un estudiante y un subtest antes de iniciar.",
+                confirmButtonText: "Entendido"
+            });
+            return;
+        }
+
+        testPreguntaActual = 0;
+        respuestasEstudiante = [];
+
+        runner.classList.remove("d-none");
+        entrarModoTest();
+        mostrarPreguntaTest();
+
+        Swal.fire({
+            icon: "success",
+            title: "Evaluación iniciada",
+            text: "Ahora el estudiante puede concentrarse solo en el test.",
+            confirmButtonText: "Continuar"
+        });
+    });
+}
+
+const btnNextQuestion = document.getElementById("btn-next-question");
+
+if (btnNextQuestion) {
+    btnNextQuestion.addEventListener("click", function () {
+        guardarRespuestaActual();
+
+        if (testPreguntaActual < preguntasDemo.length - 1) {
+            testPreguntaActual++;
+            mostrarPreguntaTest();
+        }
+    });
+}
+
+const btnPrevQuestion = document.getElementById("btn-prev-question");
+
+if (btnPrevQuestion) {
+    btnPrevQuestion.addEventListener("click", function () {
+        guardarRespuestaActual();
+
+        if (testPreguntaActual > 0) {
+            testPreguntaActual--;
+            mostrarPreguntaTest();
+        }
+    });
+}
+
+const btnFinalizarTest = document.getElementById("btn-finalizar-test");
+
+if (btnFinalizarTest) {
+    btnFinalizarTest.addEventListener("click", function () {
+        guardarRespuestaActual();
+
+        let aciertos = 0;
+        let errores = 0;
+
+        preguntasDemo.forEach((pregunta, index) => {
+            const respuestaEstudiante = normalizarRespuesta(respuestasEstudiante[index]);
+            const respuestaCorrecta = normalizarRespuesta(pregunta.respuestaCorrecta);
+
+            if (respuestaEstudiante === respuestaCorrecta) {
+                aciertos++;
+            } else {
+                errores++;
+            }
+        });
+
+        const puntajeDirecto = aciertos;
+
+        Swal.fire({
+            icon: "success",
+            title: "Test finalizado",
+            html: `
+                <p>La evaluación fue completada correctamente.</p>
+                <strong>Resultado:</strong><br>
+                Aciertos: ${aciertos}<br>
+                Errores: ${errores}<br>
+                Puntaje directo: ${puntajeDirecto}
+            `,
+            confirmButtonText: "Guardar resultado"
+        }).then(() => {
+            salirModoTest();
+        });
+    });
+}
