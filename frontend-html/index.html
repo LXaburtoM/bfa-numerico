@@ -153,13 +153,6 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
-
-                <li>
-                    <a href="#" class="sidebar-nav-link" data-section="aplicar-test">
-                        <i class="bi bi-clipboard-check-fill sidebar-nav-icon"></i>
-                        <span>Aplicar Test</span>
-                    </a>
-                </li>
             </ul>
 
             <p class="sidebar-nav-group-label">Gestión</p>
@@ -326,6 +319,10 @@
                         </div>
                         <div class="dash-panel-body">
                             <div class="quick-grid">
+                                <button class="quick-btn" id="btn-preparar-test-evaluado" type="button">
+                                    <i class="bi bi-clipboard-check-fill"></i>
+                                    <span>Preparar test</span>
+                                </button>
                                 <button class="quick-btn" data-section="estudiantes" data-open-modal="modalEstudiante">
                                     <i class="bi bi-person-plus-fill"></i>
                                     <span>Nuevo estudiante</span>
@@ -806,6 +803,70 @@
 <!-- ══════════════════════════════════════════════════════════
      MODALES BOOTSTRAP
 ══════════════════════════════════════════════════════════ -->
+<!-- ─── Modal: Preparar Test ─── -->
+<div
+        class="modal fade"
+        id="modalPrepararTest"
+        tabindex="-1"
+        aria-labelledby="modalPrepararTestLabel"
+        aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered bfa-modal-dialog">
+        <div class="modal-content bfa-modal-content">
+
+            <div class="modal-header bfa-modal-header">
+                <div class="bfa-modal-title-group">
+                    <div class="bfa-modal-icon">
+                        <i class="bi bi-clipboard-check-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title bfa-modal-title" id="modalPrepararTestLabel">
+                            Preparar test
+                        </h5>
+                        <p class="bfa-modal-sub">
+                            Selecciona el estudiante y el subtest que realizará.
+                        </p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close bfa-btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body bfa-modal-body">
+                <div class="mb-3">
+                    <label for="prep-estudiante" class="form-label bfa-label">
+                        Estudiante evaluado
+                    </label>
+                    <select class="form-select bfa-select" id="prep-estudiante">
+                        <option value="">Selecciona estudiante…</option>
+                        <option value="Mariana Gutiérrez Solís">Mariana Gutiérrez Solís</option>
+                        <option value="Carlos Mendoza Reyes">Carlos Mendoza Reyes</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label for="prep-subtest" class="form-label bfa-label">
+                        Subtest
+                    </label>
+                    <select class="form-select bfa-select" id="prep-subtest">
+                        <option value="">Selecciona subtest…</option>
+                        <option value="operaciones">Subtest N1 - Operaciones Aritméticas</option>
+                        <option value="problemas">Subtest N2 - Problemas Lógicos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer bfa-modal-footer">
+                <button type="button" class="btn bfa-btn-cancel" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="btn bfa-btn-save" id="btn-abrir-test-preparado">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Abrir test
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <!-- ─── Modal: Usuario ─── -->
 <div
