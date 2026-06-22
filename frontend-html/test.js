@@ -1,187 +1,251 @@
-// ══════════════════════════════════════════════════════════
-// TEST DEL EVALUADO - ARCHIVO SEPARADO
-// ══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
+   BFA Numérico — test.js
+   Pantalla del evaluado · Completamente independiente del admin
+   ═══════════════════════════════════════════════════════════════ */
 
-let preguntaActualEvaluado = 0;
-let respuestasEvaluado = [];
+'use strict';
 
-const preguntasEvaluado = [
+document.addEventListener('DOMContentLoaded', () => {
+  /* ════════════════════════════════════════════════════════════════
+     DATOS DE PREGUNTAS
+     Luego este arreglo se reemplaza por fetch() al API.
+     ════════════════════════════════════════════════════════════════ */
+  const TEST_PREGUNTAS = [
     {
-        texto: "Complete la serie: 2, 4, 6, 8, ¿cuál es el siguiente número?",
-        respuestaCorrecta: "10",
-        dificultad: "Fácil"
+      texto: 'Complete la serie: 2, 4, 6, 8, ¿cuál es el siguiente número?',
+      respuestaCorrecta: '10',
+      dificultad: 'Fácil',
     },
     {
-        texto: "Resuelva la operación: 15 + 7 - 3",
-        respuestaCorrecta: "19",
-        dificultad: "Medio"
+      texto: 'Resuelva la operación: 15 + 7 - 3',
+      respuestaCorrecta: '19',
+      dificultad: 'Medio',
     },
     {
-        texto: "Si una persona compra 3 cuadernos de C$20 cada uno, ¿cuánto paga en total?",
-        respuestaCorrecta: "60",
-        dificultad: "Fácil"
+      texto: 'Si una persona compra 3 cuadernos de C$20 cada uno, ¿cuánto paga en total?',
+      respuestaCorrecta: '60',
+      dificultad: 'Fácil',
+    },
+  ];
+
+  const testState = {
+    indiceActual: 0,
+    respuestas: Array(TEST_PREGUNTAS.length).fill(''),
+    iniciado: false,
+    finalizado: false,
+  };
+
+  const dom = {
+    startCard: document.getElementById('test-start-card'),
+    runner: document.getElementById('test-runner-evaluado'),
+    btnStart: document.getElementById('btn-start-evaluado'),
+    progressTexto: document.getElementById('test-progress-evaluado'),
+    progressBar: document.getElementById('test-progress-bar-fill'),
+    preguntaLabel: document.getElementById('test-question-label-evaluado'),
+    dificultad: document.getElementById('test-dificultad-evaluado'),
+    enunciado: document.getElementById('test-question-text-evaluado'),
+    respuestaInput: document.getElementById('test-answer-evaluado'),
+    btnPrev: document.getElementById('btn-prev-evaluado'),
+    btnNext: document.getElementById('btn-next-evaluado'),
+    btnFinish: document.getElementById('btn-finish-evaluado'),
+  };
+
+  const elementosRequeridos = Object.values(dom);
+  if (elementosRequeridos.some((el) => !el)) {
+    console.error('BFA Numérico: faltan elementos del test en test.html.');
+    return;
+  }
+
+  dom.btnStart.addEventListener('click', iniciarTest);
+  dom.btnPrev.addEventListener('click', irPreguntaAnterior);
+  dom.btnNext.addEventListener('click', irPreguntaSiguiente);
+  dom.btnFinish.addEventListener('click', finalizarTest);
+
+  function iniciarTest() {
+    testState.indiceActual = 0;
+    testState.respuestas = Array(TEST_PREGUNTAS.length).fill('');
+    testState.iniciado = true;
+    testState.finalizado = false;
+
+    dom.startCard.classList.add('d-none');
+    dom.runner.classList.remove('d-none');
+
+    renderPregunta();
+
+    try {
+      const page = document.documentElement;
+      if (page.requestFullscreen) page.requestFullscreen();
+      else if (page.webkitRequestFullscreen) page.webkitRequestFullscreen();
+      else if (page.mozRequestFullScreen) page.mozRequestFullScreen();
+      else if (page.msRequestFullscreen) page.msRequestFullscreen();
+    } catch (error) {
+      console.log('Pantalla completa no disponible.');
     }
-];
+  }
 
-function normalizarRespuestaEvaluado(valor) {
-    return String(valor).trim().toLowerCase();
-}
+  function renderPregunta() {
+    const total = TEST_PREGUNTAS.length;
+    const index = testState.indiceActual;
+    const pregunta = TEST_PREGUNTAS[index];
+    const esUltima = index === total - 1;
+    const porcentaje = Math.round(((index + 1) / total) * 100);
 
-function guardarRespuestaEvaluado() {
-    const inputRespuesta = document.getElementById("test-answer-evaluado");
+    dom.progressTexto.textContent = esUltima
+      ? `Última pregunta (${index + 1} de ${total})`
+      : `Pregunta ${index + 1} de ${total}`;
 
-    if (inputRespuesta) {
-        respuestasEvaluado[preguntaActualEvaluado] = inputRespuesta.value;
-    }
-}
+    dom.progressBar.style.width = `${porcentaje}%`;
+    dom.progressBar.setAttribute('aria-valuenow', String(porcentaje));
 
-function mostrarPreguntaEvaluado() {
-    const pregunta = preguntasEvaluado[preguntaActualEvaluado];
+    dom.preguntaLabel.textContent = `Pregunta ${index + 1}`;
+    dom.enunciado.textContent = pregunta.texto;
 
-    const progreso = document.getElementById("test-progress-evaluado");
-    const label = document.getElementById("test-question-label-evaluado");
-    const dificultad = document.getElementById("test-dificultad-evaluado");
-    const texto = document.getElementById("test-question-text-evaluado");
-    const respuesta = document.getElementById("test-answer-evaluado");
-    const btnAnterior = document.getElementById("btn-prev-evaluado");
-    const btnSiguiente = document.getElementById("btn-next-evaluado");
-    const btnFinalizar = document.getElementById("btn-finish-evaluado");
+    dom.dificultad.textContent = pregunta.dificultad;
+    dom.dificultad.className = 'badge test-badge-dificultad';
 
-    if (!progreso || !label || !dificultad || !texto || !respuesta) return;
+    const claseDificultad = {
+      'Fácil': 'badge-facil',
+      'Medio': 'badge-medio',
+      'Difícil': 'badge-dificil',
+    }[pregunta.dificultad];
 
-    const esUltimaPregunta = preguntaActualEvaluado === preguntasEvaluado.length - 1;
-
-    progreso.textContent = esUltimaPregunta
-        ? `Última pregunta (${preguntaActualEvaluado + 1} de ${preguntasEvaluado.length})`
-        : `Pregunta ${preguntaActualEvaluado + 1} de ${preguntasEvaluado.length}`;
-
-    label.textContent = `Pregunta ${preguntaActualEvaluado + 1}`;
-    dificultad.textContent = `Dificultad: ${pregunta.dificultad}`;
-    texto.textContent = pregunta.texto;
-    respuesta.value = respuestasEvaluado[preguntaActualEvaluado] || "";
-
-    if (btnAnterior) {
-        btnAnterior.disabled = preguntaActualEvaluado === 0;
+    if (claseDificultad) {
+      dom.dificultad.classList.add(claseDificultad);
     }
 
-    if (btnSiguiente) {
-        btnSiguiente.classList.toggle("d-none", esUltimaPregunta);
-    }
+    dom.respuestaInput.value = testState.respuestas[index] || '';
+    dom.respuestaInput.focus();
 
-    if (btnFinalizar) {
-        btnFinalizar.classList.toggle("d-none", !esUltimaPregunta);
-    }
-}
+    dom.btnPrev.disabled = index === 0;
+    dom.btnNext.classList.toggle('d-none', esUltima);
+    dom.btnFinish.classList.toggle('d-none', !esUltima);
+  }
 
-function finalizarTestEvaluado() {
-    guardarRespuestaEvaluado();
+  function guardarRespuestaActual() {
+    testState.respuestas[testState.indiceActual] = dom.respuestaInput.value;
+  }
 
+  function irPreguntaAnterior() {
+    if (testState.indiceActual === 0) return;
+
+    guardarRespuestaActual();
+    testState.indiceActual -= 1;
+    renderPregunta();
+  }
+
+  function irPreguntaSiguiente() {
+    if (testState.indiceActual >= TEST_PREGUNTAS.length - 1) return;
+
+    guardarRespuestaActual();
+    testState.indiceActual += 1;
+    renderPregunta();
+  }
+
+  function finalizarTest() {
+    guardarRespuestaActual();
+    testState.finalizado = true;
+    mostrarResumen();
+  }
+
+  function mostrarResumen() {
+    const total = TEST_PREGUNTAS.length;
     let aciertos = 0;
     let errores = 0;
 
-    let resumenHtml = `
-        <div style="text-align:left;">
-            <p>La evaluación fue completada correctamente.</p>
-            <hr>
-    `;
+    const filas = TEST_PREGUNTAS.map((pregunta, index) => {
+      const respuestaOriginal = testState.respuestas[index] || '';
+      const respuestaEvaluado = normalizarRespuesta(respuestaOriginal);
+      const respuestaCorrecta = normalizarRespuesta(pregunta.respuestaCorrecta);
 
-    preguntasEvaluado.forEach((pregunta, index) => {
-        const respuestaOriginal = respuestasEvaluado[index] || "";
-        const respuestaEvaluado = normalizarRespuestaEvaluado(respuestaOriginal);
-        const respuestaCorrecta = normalizarRespuestaEvaluado(pregunta.respuestaCorrecta);
+      const sinResponder = respuestaEvaluado === '';
+      const esCorrecta = !sinResponder && respuestaEvaluado === respuestaCorrecta;
 
-        const esCorrecta = respuestaEvaluado === respuestaCorrecta;
+      if (esCorrecta) aciertos += 1;
+      else errores += 1;
 
-        if (esCorrecta) {
-            aciertos++;
-        } else {
-            errores++;
-        }
+      const respuestaMostrada = sinResponder
+        ? '<em class="result-vacia">Sin responder</em>'
+        : escapeHtml(respuestaOriginal.trim());
 
-        resumenHtml += `
-            <div style="margin-bottom:14px;">
-                <strong>Pregunta ${index + 1}</strong><br>
-                <span>${pregunta.texto}</span><br>
-                <span><strong>Tu respuesta:</strong> ${respuestaOriginal || "Sin responder"}</span><br>
-                <span><strong>Respuesta correcta:</strong> ${pregunta.respuestaCorrecta}</span><br>
-                <span style="font-weight:600; color:${esCorrecta ? "#2e7d32" : "#8f1d1d"};">
-                    ${esCorrecta ? "Correcta" : "Incorrecta"}
-                </span>
-            </div>
-        `;
-    });
+      const estadoMostrado = esCorrecta
+        ? '<span class="result-ok">✓ Correcta</span>'
+        : '<span class="result-err">✗ Incorrecta</span>';
+
+      return `
+        <tr>
+          <td style="font-weight:500;color:#8f8b85;width:32px">${index + 1}</td>
+          <td style="max-width:220px">${escapeHtml(pregunta.texto)}</td>
+          <td>${respuestaMostrada}</td>
+          <td style="color:#5a5751">${escapeHtml(pregunta.respuestaCorrecta)}</td>
+          <td>${estadoMostrado}</td>
+        </tr>
+      `;
+    }).join('');
 
     const puntajeDirecto = aciertos;
 
-    resumenHtml += `
-            <hr>
-            <strong>Resultado final:</strong><br>
-            Aciertos: ${aciertos}<br>
-            Errores: ${errores}<br>
-            Puntaje directo: ${puntajeDirecto}
+    const html = `
+      <div style="font-family:'Inter',sans-serif;">
+        <div class="result-table-wrap">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Pregunta</th>
+                <th>Tu respuesta</th>
+                <th>Correcta</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>${filas}</tbody>
+          </table>
         </div>
+
+        <div class="result-score-bar">
+          <div class="result-score-num">
+            ${puntajeDirecto}<span style="font-size:1rem;color:#8f8b85"> / ${total}</span>
+          </div>
+          <div class="result-score-detail">
+            <strong style="color:#3a7a4c">${aciertos} acierto${aciertos !== 1 ? 's' : ''}</strong>
+            &nbsp;·&nbsp;
+            <strong style="color:#9a3535">${errores} error${errores !== 1 ? 'es' : ''}</strong><br>
+            Puntaje directo: <strong>${puntajeDirecto}</strong>
+          </div>
+        </div>
+      </div>
     `;
 
     Swal.fire({
-        icon: "success",
-        title: "Test finalizado",
-        html: resumenHtml,
-        width: 700,
-        confirmButtonText: "Cerrar"
+      title: 'Resultados del test',
+      html,
+      icon: aciertos === total ? 'success' : aciertos > 0 ? 'info' : 'warning',
+      confirmButtonText: 'Cerrar',
+      width: 760,
+      didOpen: salirPantallaCompleta,
     });
-}
+  }
 
-const btnStartEvaluado = document.getElementById("btn-start-evaluado");
+  function normalizarRespuesta(valor) {
+    return String(valor).trim().toLowerCase();
+  }
 
-if (btnStartEvaluado) {
-    btnStartEvaluado.addEventListener("click", function () {
-        const pantallaInicio = document.getElementById("test-start-card");
-        const pantallaTest = document.getElementById("test-runner-evaluado");
+  function salirPantallaCompleta() {
+    try {
+      if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.mozFullScreenElement && document.mozCancelFullScreen) document.mozCancelFullScreen();
+      else if (document.msFullscreenElement && document.msExitFullscreen) document.msExitFullscreen();
+    } catch (error) {
+      console.log('No se pudo salir de pantalla completa.');
+    }
+  }
 
-        preguntaActualEvaluado = 0;
-        respuestasEvaluado = [];
-
-        pantallaInicio.classList.add("d-none");
-        pantallaTest.classList.remove("d-none");
-
-        mostrarPreguntaEvaluado();
-
-        if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(() => {
-                console.log("El navegador no activó pantalla completa.");
-            });
-        }
-    });
-}
-
-const btnNextEvaluado = document.getElementById("btn-next-evaluado");
-
-if (btnNextEvaluado) {
-    btnNextEvaluado.addEventListener("click", function () {
-        guardarRespuestaEvaluado();
-
-        if (preguntaActualEvaluado < preguntasEvaluado.length - 1) {
-            preguntaActualEvaluado++;
-            mostrarPreguntaEvaluado();
-        }
-    });
-}
-
-const btnPrevEvaluado = document.getElementById("btn-prev-evaluado");
-
-if (btnPrevEvaluado) {
-    btnPrevEvaluado.addEventListener("click", function () {
-        guardarRespuestaEvaluado();
-
-        if (preguntaActualEvaluado > 0) {
-            preguntaActualEvaluado--;
-            mostrarPreguntaEvaluado();
-        }
-    });
-}
-
-const btnFinishEvaluado = document.getElementById("btn-finish-evaluado");
-
-if (btnFinishEvaluado) {
-    btnFinishEvaluado.addEventListener("click", finalizarTestEvaluado);
-}
+  function escapeHtml(valor) {
+    return String(valor)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+});
