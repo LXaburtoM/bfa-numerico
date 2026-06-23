@@ -3,159 +3,174 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Evaluación Numérica — BFA Numérico</title>
+    <title>NUMERICO | Evaluación Psicométrica BFA</title>
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-    <!-- SweetAlert2 -->
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
-    <!-- Google Fonts: DM Serif Display + Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <!-- Estilos del evaluado -->
-    <link rel="stylesheet" href="test.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="test.css">
 </head>
-<body class="test-evaluado-body">
+<body>
 
-<!-- ══════════════════════════════════════════════════════════
-     PANTALLA INICIAL — INSTRUCCIONES
-══════════════════════════════════════════════════════════ -->
-<div id="test-start-card" class="test-screen">
-    <div class="test-start-wrapper">
-        <div class="test-start-card-inner">
-
-            <div class="test-logo-mark">
-                <span class="logo-sigma">∑</span>
-            </div>
-
-            <p class="test-eyebrow">BFA Numérico</p>
-            <h1 class="test-start-title">Evaluación Numérica</h1>
-            <p class="test-start-sub">
-                Lee cada pregunta con calma y responde con la mayor precisión posible.
-                No hay prisa: concéntrate y confía en tu razonamiento.
-            </p>
-
-            <div class="test-info-card">
-                <div class="test-info-item">
-                    <i class="bi bi-clock-history test-info-icon"></i>
-                    <div class="test-info-text">
-                        <span class="test-info-label">Tiempo estimado</span>
-                        <span class="test-info-value">30 minutos</span>
-                    </div>
-                </div>
-                <div class="test-info-item">
-                    <i class="bi bi-patch-question test-info-icon"></i>
-                    <div class="test-info-text">
-                        <span class="test-info-label">Total de preguntas</span>
-                        <span class="test-info-value">3</span>
-                    </div>
-                </div>
-                <div class="test-info-item">
-                    <i class="bi bi-shield-exclamation test-info-icon"></i>
-                    <div class="test-info-text">
-                        <span class="test-info-label">Recomendación</span>
-                        <span class="test-info-value">Responde sin ayuda externa</span>
-                    </div>
-                </div>
-            </div>
-
-            <button type="button" class="btn test-btn-start w-100" id="btn-start-evaluado">
-                <span>Iniciar test</span>
-                <i class="bi bi-arrow-right ms-2"></i>
-            </button>
-
-            <p class="test-start-footer">
-                <i class="bi bi-lock-fill me-1"></i>
-                Tus respuestas se registrarán de forma confidencial
-            </p>
-
+<nav class="navbar-numerico">
+    <div class="container d-flex align-items-center justify-content-between">
+        <div class="brand">
+            <span class="brand-mark">N</span>
+            <span class="brand-text">NUMERICO</span>
         </div>
+        <div class="brand-sub d-none d-md-block">Batería Factorial de Aptitudes · BFA</div>
     </div>
-</div><!-- /#test-start-card -->
+</nav>
 
+<main class="container py-5">
 
-<!-- ══════════════════════════════════════════════════════════
-     PANTALLA DEL TEST EN CURSO
-══════════════════════════════════════════════════════════ -->
-<div id="test-runner-evaluado" class="test-screen d-none">
-    <div class="test-runner-container">
+    <!-- PASO 1: BIENVENIDA -->
+    <section id="step-welcome" class="step-section active">
+        <div class="hero-card">
+            <h1>Evaluación de Aptitudes Numéricas</h1>
+            <p class="lead-text">Antes de comenzar, necesitamos algunos datos básicos para registrar tu evaluación de forma correcta.</p>
+            <button class="btn btn-numerico-primary btn-lg mt-3" id="btn-empezar">Comenzar registro</button>
+        </div>
+    </section>
 
-        <!-- Encabezado con progreso -->
-        <div class="test-runner-header">
-            <div class="test-runner-brand">
-                <span class="logo-sigma logo-sigma--sm">∑</span>
-                <span class="test-runner-brand-text">BFA Numérico</span>
+    <!-- PASO 2: FORMULARIO DE DATOS -->
+    <section id="step-datos" class="step-section">
+        <div class="form-card">
+            <h2 class="mb-1">Datos del evaluado</h2>
+            <p class="text-muted mb-4">Completa la información solicitada. Todos los campos marcados son obligatorios.</p>
+
+            <form id="form-datos" novalidate>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Identificación *</label>
+                        <input type="text" class="form-control" id="identificacion" required maxlength="20" placeholder="Ej. 0001-200603-0001A">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Sexo *</label>
+                        <select class="form-select" id="sexo" required>
+                            <option value="" disabled selected>Selecciona una opción</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre *</label>
+                        <input type="text" class="form-control" id="nombre" required maxlength="80">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Apellido *</label>
+                        <input type="text" class="form-control" id="apellido" required maxlength="80">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Edad *</label>
+                        <input type="number" class="form-control" id="edad" required min="18" max="120">
+                        <div class="form-text">Debes ser mayor de edad para realizar esta evaluación.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha de ingreso</label>
+                        <input type="text" class="form-control" id="fechaIngreso" disabled>
+                        <div class="form-text">Se registra automáticamente con la fecha de hoy.</div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="correo" placeholder="nombre@correo.com">
+                        <div class="form-text">Opcional, pero debe contener un "@" válido si lo completas.</div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-numerico-ghost" id="btn-volver-1">Volver</button>
+                    <button type="submit" class="btn btn-numerico-primary">Continuar</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- PASO 3: SELECCIÓN DE TEST -->
+    <section id="step-seleccion" class="step-section">
+        <h2 class="text-center mb-2">Selecciona el test que deseas realizar</h2>
+        <p class="text-center text-muted mb-5">Bienvenido(a), <span id="nombre-bienvenida" class="fw-semibold"></span>. Elige una de las pruebas disponibles.</p>
+        <div class="row g-4 justify-content-center" id="contenedor-subtests">
+            <!-- Las tarjetas de subtest se generan dinámicamente con JS -->
+        </div>
+    </section>
+
+    <!-- PASO 4: TEST EN CURSO -->
+    <section id="step-test" class="step-section">
+        <div class="test-header">
+            <div>
+                <h2 id="titulo-test" class="mb-0"></h2>
+                <small class="text-muted">Pregunta <span id="pregunta-actual">1</span> de <span id="pregunta-total">0</span></small>
             </div>
-            <div class="test-progress-wrap">
-                <span class="test-progress-text" id="test-progress-evaluado" aria-live="polite">Pregunta 1 de 3</span>
-                <div class="progress test-progress-bar">
-                    <div
-                            class="progress-bar test-progress-bar-fill"
-                            id="test-progress-bar-fill"
-                            role="progressbar"
-                            style="width: 33%;"
-                            aria-valuenow="33"
-                            aria-valuemin="0"
-                            aria-valuemax="100"
-                    ></div>
+            <div class="timer-box">
+                <span id="timer">06:00</span>
+            </div>
+        </div>
+
+        <div class="progress mb-4 progreso-numerico">
+            <div class="progress-bar" id="barra-progreso" style="width: 0%;"></div>
+        </div>
+
+        <div class="pregunta-card" id="pregunta-card">
+            <p class="enunciado" id="texto-enunciado"></p>
+            <div class="opciones" id="contenedor-opciones"></div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button class="btn btn-numerico-ghost" id="btn-anterior" disabled>Anterior</button>
+            <button class="btn btn-numerico-primary" id="btn-siguiente">Siguiente</button>
+        </div>
+    </section>
+
+    <!-- PASO 5: RESULTADO -->
+    <section id="step-resultado" class="step-section">
+        <div class="resultado-card text-center">
+            <div class="resultado-icon">✓</div>
+            <h2>Evaluación finalizada</h2>
+            <p class="text-muted">Gracias por completar la prueba. Estos son tus resultados:</p>
+
+            <div class="row g-3 mt-4 justify-content-center">
+                <div class="col-6 col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-value" id="res-aciertos">0</div>
+                        <div class="metric-label">Aciertos</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-value" id="res-errores">0</div>
+                        <div class="metric-label">Errores</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-value" id="res-puntaje">0</div>
+                        <div class="metric-label">Puntaje directo</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="metric-box highlight">
+                        <div class="metric-value" id="res-percentil">0</div>
+                        <div class="metric-label">Percentil</div>
+                    </div>
                 </div>
             </div>
+
+            <button class="btn btn-numerico-primary btn-lg mt-5" id="btn-reiniciar">Volver al inicio</button>
         </div>
+    </section>
 
-        <!-- Tarjeta de la pregunta -->
-        <div class="test-question-card">
+</main>
 
-            <div class="test-question-top">
-                <span class="test-question-label" id="test-question-label-evaluado">Pregunta 1</span>
-                <span class="badge test-badge-dificultad" id="test-dificultad-evaluado">Fácil</span>
-            </div>
+<footer class="footer-numerico text-center py-4">
+    <small>NUMERICO &middot; Batería Factorial de Aptitudes &middot; Universidad Americana (UAM)</small>
+</footer>
 
-            <p class="test-question-text" id="test-question-text-evaluado" aria-live="polite">
-                Cargando enunciado de la pregunta…
-            </p>
-
-            <div class="test-answer-wrap">
-                <label for="test-answer-evaluado" class="test-answer-label">Tu respuesta</label>
-                <textarea
-                        class="form-control test-answer-input"
-                        id="test-answer-evaluado"
-                        rows="4"
-                        placeholder="Escribe tu respuesta aquí…"
-                        autocomplete="off"
-                        spellcheck="false"
-                        inputmode="decimal"
-                ></textarea>
-            </div>
-
-        </div>
-
-        <!-- Navegación inferior -->
-        <div class="test-nav-footer">
-            <button type="button" class="btn test-btn-prev" id="btn-prev-evaluado">
-                <i class="bi bi-arrow-left me-2"></i>Anterior
-            </button>
-
-            <div class="test-nav-footer-right">
-                <button type="button" class="btn test-btn-next" id="btn-next-evaluado">
-                    Siguiente<i class="bi bi-arrow-right ms-2"></i>
-                </button>
-                <button type="button" class="btn test-btn-finish d-none" id="btn-finish-evaluado">
-                    <i class="bi bi-check-circle-fill me-2"></i>Finalizar test
-                </button>
-            </div>
-        </div>
-
-    </div>
-</div><!-- /#test-runner-evaluado -->
-
-
-<!-- ══════════════════════════════════════════════════════════
-     SCRIPTS
-══════════════════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="test.js"></script>
-
 </body>
 </html>

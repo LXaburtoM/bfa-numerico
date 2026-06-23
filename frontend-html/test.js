@@ -1,251 +1,297 @@
-/* ═══════════════════════════════════════════════════════════════
-   BFA Numérico — test.js
-   Pantalla del evaluado · Completamente independiente del admin
-   ═══════════════════════════════════════════════════════════════ */
+const API_BASE = "http://localhost:3000/api";
 
-'use strict';
-
-document.addEventListener('DOMContentLoaded', () => {
-  /* ════════════════════════════════════════════════════════════════
-     DATOS DE PREGUNTAS
-     Luego este arreglo se reemplaza por fetch() al API.
-     ════════════════════════════════════════════════════════════════ */
-  const TEST_PREGUNTAS = [
-    {
-      texto: 'Complete la serie: 2, 4, 6, 8, ¿cuál es el siguiente número?',
-      respuestaCorrecta: '10',
-      dificultad: 'Fácil',
-    },
-    {
-      texto: 'Resuelva la operación: 15 + 7 - 3',
-      respuestaCorrecta: '19',
-      dificultad: 'Medio',
-    },
-    {
-      texto: 'Si una persona compra 3 cuadernos de C$20 cada uno, ¿cuánto paga en total?',
-      respuestaCorrecta: '60',
-      dificultad: 'Fácil',
-    },
-  ];
-
-  const testState = {
+let estado = {
+    idEstudiante: null,
+    nombre: "",
+    subtestSeleccionado: null,
+    preguntas: [],
     indiceActual: 0,
-    respuestas: Array(TEST_PREGUNTAS.length).fill(''),
-    iniciado: false,
-    finalizado: false,
-  };
+    respuestas: {}, // { idPregunta: "A"|"B"|"C"|"D" }
+    timerInterval: null,
+    segundosRestantes: 0,
+};
 
-  const dom = {
-    startCard: document.getElementById('test-start-card'),
-    runner: document.getElementById('test-runner-evaluado'),
-    btnStart: document.getElementById('btn-start-evaluado'),
-    progressTexto: document.getElementById('test-progress-evaluado'),
-    progressBar: document.getElementById('test-progress-bar-fill'),
-    preguntaLabel: document.getElementById('test-question-label-evaluado'),
-    dificultad: document.getElementById('test-dificultad-evaluado'),
-    enunciado: document.getElementById('test-question-text-evaluado'),
-    respuestaInput: document.getElementById('test-answer-evaluado'),
-    btnPrev: document.getElementById('btn-prev-evaluado'),
-    btnNext: document.getElementById('btn-next-evaluado'),
-    btnFinish: document.getElementById('btn-finish-evaluado'),
-  };
+// ---------- NAVEGACIÓN ENTRE PASOS ----------
+function mostrarPaso(idPaso) {
+    document.querySelectorAll(".step-section").forEach((s) => s.classList.remove("active"));
+    document.getElementById(idPaso).classList.add("active");
+}
 
-  const elementosRequeridos = Object.values(dom);
-  if (elementosRequeridos.some((el) => !el)) {
-    console.error('BFA Numérico: faltan elementos del test en test.html.');
-    return;
-  }
+document.getElementById("btn-empezar").addEventListener("click", () => {
+    const hoy = new Date();
+    document.getElementById("fechaIngreso").value = hoy.toLocaleDateString("es-NI", {
+        year: "numeric", month: "long", day: "numeric"
+    });
+    mostrarPaso("step-datos");
+});
 
-  dom.btnStart.addEventListener('click', iniciarTest);
-  dom.btnPrev.addEventListener('click', irPreguntaAnterior);
-  dom.btnNext.addEventListener('click', irPreguntaSiguiente);
-  dom.btnFinish.addEventListener('click', finalizarTest);
+document.getElementById("btn-volver-1").addEventListener("click", () => {
+    mostrarPaso("step-welcome");
+});
 
-  function iniciarTest() {
-    testState.indiceActual = 0;
-    testState.respuestas = Array(TEST_PREGUNTAS.length).fill('');
-    testState.iniciado = true;
-    testState.finalizado = false;
+document.getElementById("btn-reiniciar").addEventListener("click", () => {
+    location.reload();
+});
 
-    dom.startCard.classList.add('d-none');
-    dom.runner.classList.remove('d-none');
+// ---------- PASO 2: REGISTRO DEL ESTUDIANTE ----------
+document.getElementById("form-datos").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    renderPregunta();
+    const identificacion = document.getElementById("identificacion").value.trim();
+    const nombre = document.getElementById("nombre").value.trim();
+    const apellido = document.getElementById("apellido").value.trim();
+    const edad = parseInt(document.getElementById("edad").value, 10);
+    const correo = document.getElementById("correo").value.trim();
+    const sexo = document.getElementById("sexo").value;
 
-    try {
-      const page = document.documentElement;
-      if (page.requestFullscreen) page.requestFullscreen();
-      else if (page.webkitRequestFullscreen) page.webkitRequestFullscreen();
-      else if (page.mozRequestFullScreen) page.mozRequestFullScreen();
-      else if (page.msRequestFullscreen) page.msRequestFullscreen();
-    } catch (error) {
-      console.log('Pantalla completa no disponible.');
-    }
-  }
-
-  function renderPregunta() {
-    const total = TEST_PREGUNTAS.length;
-    const index = testState.indiceActual;
-    const pregunta = TEST_PREGUNTAS[index];
-    const esUltima = index === total - 1;
-    const porcentaje = Math.round(((index + 1) / total) * 100);
-
-    dom.progressTexto.textContent = esUltima
-      ? `Última pregunta (${index + 1} de ${total})`
-      : `Pregunta ${index + 1} de ${total}`;
-
-    dom.progressBar.style.width = `${porcentaje}%`;
-    dom.progressBar.setAttribute('aria-valuenow', String(porcentaje));
-
-    dom.preguntaLabel.textContent = `Pregunta ${index + 1}`;
-    dom.enunciado.textContent = pregunta.texto;
-
-    dom.dificultad.textContent = pregunta.dificultad;
-    dom.dificultad.className = 'badge test-badge-dificultad';
-
-    const claseDificultad = {
-      'Fácil': 'badge-facil',
-      'Medio': 'badge-medio',
-      'Difícil': 'badge-dificil',
-    }[pregunta.dificultad];
-
-    if (claseDificultad) {
-      dom.dificultad.classList.add(claseDificultad);
+    if (!identificacion || !nombre || !apellido || !edad || !sexo) {
+        Swal.fire({
+            icon: "warning",
+            title: "Faltan datos",
+            text: "Por favor completa todos los campos obligatorios.",
+            confirmButtonColor: "#0a0a0a",
+        });
+        return;
     }
 
-    dom.respuestaInput.value = testState.respuestas[index] || '';
-    dom.respuestaInput.focus();
+    if (edad < 18) {
+        Swal.fire({
+            icon: "error",
+            title: "Edad no permitida",
+            text: "Debes ser mayor de edad para realizar esta evaluación.",
+            confirmButtonColor: "#0a0a0a",
+        });
+        return;
+    }
 
-    dom.btnPrev.disabled = index === 0;
-    dom.btnNext.classList.toggle('d-none', esUltima);
-    dom.btnFinish.classList.toggle('d-none', !esUltima);
-  }
-
-  function guardarRespuestaActual() {
-    testState.respuestas[testState.indiceActual] = dom.respuestaInput.value;
-  }
-
-  function irPreguntaAnterior() {
-    if (testState.indiceActual === 0) return;
-
-    guardarRespuestaActual();
-    testState.indiceActual -= 1;
-    renderPregunta();
-  }
-
-  function irPreguntaSiguiente() {
-    if (testState.indiceActual >= TEST_PREGUNTAS.length - 1) return;
-
-    guardarRespuestaActual();
-    testState.indiceActual += 1;
-    renderPregunta();
-  }
-
-  function finalizarTest() {
-    guardarRespuestaActual();
-    testState.finalizado = true;
-    mostrarResumen();
-  }
-
-  function mostrarResumen() {
-    const total = TEST_PREGUNTAS.length;
-    let aciertos = 0;
-    let errores = 0;
-
-    const filas = TEST_PREGUNTAS.map((pregunta, index) => {
-      const respuestaOriginal = testState.respuestas[index] || '';
-      const respuestaEvaluado = normalizarRespuesta(respuestaOriginal);
-      const respuestaCorrecta = normalizarRespuesta(pregunta.respuestaCorrecta);
-
-      const sinResponder = respuestaEvaluado === '';
-      const esCorrecta = !sinResponder && respuestaEvaluado === respuestaCorrecta;
-
-      if (esCorrecta) aciertos += 1;
-      else errores += 1;
-
-      const respuestaMostrada = sinResponder
-        ? '<em class="result-vacia">Sin responder</em>'
-        : escapeHtml(respuestaOriginal.trim());
-
-      const estadoMostrado = esCorrecta
-        ? '<span class="result-ok">✓ Correcta</span>'
-        : '<span class="result-err">✗ Incorrecta</span>';
-
-      return `
-        <tr>
-          <td style="font-weight:500;color:#8f8b85;width:32px">${index + 1}</td>
-          <td style="max-width:220px">${escapeHtml(pregunta.texto)}</td>
-          <td>${respuestaMostrada}</td>
-          <td style="color:#5a5751">${escapeHtml(pregunta.respuestaCorrecta)}</td>
-          <td>${estadoMostrado}</td>
-        </tr>
-      `;
-    }).join('');
-
-    const puntajeDirecto = aciertos;
-
-    const html = `
-      <div style="font-family:'Inter',sans-serif;">
-        <div class="result-table-wrap">
-          <table class="result-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Pregunta</th>
-                <th>Tu respuesta</th>
-                <th>Correcta</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>${filas}</tbody>
-          </table>
-        </div>
-
-        <div class="result-score-bar">
-          <div class="result-score-num">
-            ${puntajeDirecto}<span style="font-size:1rem;color:#8f8b85"> / ${total}</span>
-          </div>
-          <div class="result-score-detail">
-            <strong style="color:#3a7a4c">${aciertos} acierto${aciertos !== 1 ? 's' : ''}</strong>
-            &nbsp;·&nbsp;
-            <strong style="color:#9a3535">${errores} error${errores !== 1 ? 'es' : ''}</strong><br>
-            Puntaje directo: <strong>${puntajeDirecto}</strong>
-          </div>
-        </div>
-      </div>
-    `;
+    if (correo && !correo.includes("@")) {
+        Swal.fire({
+            icon: "warning",
+            title: "Correo inválido",
+            text: "El correo electrónico debe contener un \"@\" válido.",
+            confirmButtonColor: "#0a0a0a",
+        });
+        return;
+    }
 
     Swal.fire({
-      title: 'Resultados del test',
-      html,
-      icon: aciertos === total ? 'success' : aciertos > 0 ? 'info' : 'warning',
-      confirmButtonText: 'Cerrar',
-      width: 760,
-      didOpen: salirPantallaCompleta,
+        title: "Registrando...",
+        didOpen: () => Swal.showLoading(),
+        allowOutsideClick: false,
     });
-  }
 
-  function normalizarRespuesta(valor) {
-    return String(valor).trim().toLowerCase();
-  }
-
-  function salirPantallaCompleta() {
     try {
-      if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
-      else if (document.mozFullScreenElement && document.mozCancelFullScreen) document.mozCancelFullScreen();
-      else if (document.msFullscreenElement && document.msExitFullscreen) document.msExitFullscreen();
-    } catch (error) {
-      console.log('No se pudo salir de pantalla completa.');
-    }
-  }
+        const resp = await fetch(`${API_BASE}/estudiante`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                identificacion, nombre, apellido, edad,
+                correoElectronico: correo || null, sexo,
+            }),
+        });
 
-  function escapeHtml(valor) {
-    return String(valor)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
+        const data = await resp.json();
+        Swal.close();
+
+        if (!resp.ok) {
+            Swal.fire({ icon: "error", title: "No se pudo registrar", text: data.error, confirmButtonColor: "#0a0a0a" });
+            return;
+        }
+
+        estado.idEstudiante = data.idEstudiante;
+        estado.nombre = nombre;
+        document.getElementById("nombre-bienvenida").textContent = `${nombre} ${apellido}`;
+
+        await cargarSubtests();
+        mostrarPaso("step-seleccion");
+    } catch (err) {
+        Swal.close();
+        Swal.fire({
+            icon: "error",
+            title: "Sin conexión",
+            text: "No se pudo conectar con el servidor. Verifica que el backend esté corriendo.",
+            confirmButtonColor: "#0a0a0a",
+        });
+    }
 });
+
+// ---------- PASO 3: CARGAR Y MOSTRAR SUBTESTS ----------
+async function cargarSubtests() {
+    const contenedor = document.getElementById("contenedor-subtests");
+    contenedor.innerHTML = "";
+
+    const resp = await fetch(`${API_BASE}/subtests`);
+    const subtests = await resp.json();
+
+    subtests.forEach((st) => {
+        const icono = st.tipotest === "N1_OPERACIONES" ? "🔢" : "🧩";
+        const col = document.createElement("div");
+        col.className = "col-md-5";
+        col.innerHTML = `
+      <div class="subtest-card" data-id="${st.id}" data-tipo="${st.tipotest}" data-nombre="${st.nombre}" data-tiempo="${st.tiempo}">
+        <div class="icono">${icono}</div>
+        <h3>${st.nombre}</h3>
+        <p class="info-test">${st.total} preguntas &middot; ${st.tiempo} minutos</p>
+      </div>
+    `;
+        contenedor.appendChild(col);
+    });
+
+    document.querySelectorAll(".subtest-card").forEach((card) => {
+        card.addEventListener("click", () => iniciarTest(card.dataset));
+    });
+}
+
+// ---------- PASO 4: INICIAR Y RENDERIZAR EL TEST ----------
+async function iniciarTest(dataset) {
+    estado.subtestSeleccionado = dataset;
+    estado.respuestas = {};
+    estado.indiceActual = 0;
+
+    Swal.fire({ title: "Cargando preguntas...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+    const resp = await fetch(`${API_BASE}/preguntas/${dataset.id}?tipo=${dataset.tipo}`);
+    const preguntas = await resp.json();
+    Swal.close();
+
+    if (!preguntas.length) {
+        Swal.fire({ icon: "info", title: "Sin preguntas", text: "Este test todavía no tiene preguntas cargadas.", confirmButtonColor: "#0a0a0a" });
+        return;
+    }
+
+    estado.preguntas = preguntas;
+    document.getElementById("titulo-test").textContent = dataset.nombre;
+    document.getElementById("pregunta-total").textContent = preguntas.length;
+
+    iniciarTemporizador(parseInt(dataset.tiempo, 10) * 60);
+    renderizarPregunta();
+    mostrarPaso("step-test");
+}
+
+function renderizarPregunta() {
+    const p = estado.preguntas[estado.indiceActual];
+    document.getElementById("pregunta-actual").textContent = estado.indiceActual + 1;
+    document.getElementById("texto-enunciado").textContent = p.enunciado;
+
+    const porcentaje = ((estado.indiceActual + 1) / estado.preguntas.length) * 100;
+    document.getElementById("barra-progreso").style.width = `${porcentaje}%`;
+
+    const opciones = [
+        { letra: "A", texto: p.opciona },
+        { letra: "B", texto: p.opcionb },
+        { letra: "C", texto: p.opcionc },
+        { letra: "D", texto: p.opciond },
+    ];
+
+    const contenedor = document.getElementById("contenedor-opciones");
+    contenedor.innerHTML = "";
+
+    opciones.forEach((op) => {
+        const seleccionada = estado.respuestas[p.id] === op.letra;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `opcion-btn ${seleccionada ? "seleccionada" : ""}`;
+        btn.innerHTML = `<span class="opcion-letra">${op.letra}</span><span>${op.texto}</span>`;
+        btn.addEventListener("click", () => {
+            estado.respuestas[p.id] = op.letra;
+            renderizarPregunta();
+        });
+        contenedor.appendChild(btn);
+    });
+
+    document.getElementById("btn-anterior").disabled = estado.indiceActual === 0;
+    document.getElementById("btn-siguiente").textContent =
+        estado.indiceActual === estado.preguntas.length - 1 ? "Finalizar" : "Siguiente";
+}
+
+document.getElementById("btn-anterior").addEventListener("click", () => {
+    if (estado.indiceActual > 0) {
+        estado.indiceActual--;
+        renderizarPregunta();
+    }
+});
+
+document.getElementById("btn-siguiente").addEventListener("click", () => {
+    if (estado.indiceActual < estado.preguntas.length - 1) {
+        estado.indiceActual++;
+        renderizarPregunta();
+    } else {
+        finalizarTest();
+    }
+});
+
+// ---------- TEMPORIZADOR ----------
+function iniciarTemporizador(segundosTotales) {
+    estado.segundosRestantes = segundosTotales;
+    actualizarTimerUI();
+
+    clearInterval(estado.timerInterval);
+    estado.timerInterval = setInterval(() => {
+        estado.segundosRestantes--;
+        actualizarTimerUI();
+
+        if (estado.segundosRestantes <= 0) {
+            clearInterval(estado.timerInterval);
+            Swal.fire({
+                icon: "info",
+                title: "Tiempo agotado",
+                text: "Se acabó el tiempo. Tu test se enviará con las respuestas marcadas hasta ahora.",
+                confirmButtonColor: "#0a0a0a",
+            }).then(() => finalizarTest());
+        }
+    }, 1000);
+}
+
+function actualizarTimerUI() {
+    const min = Math.floor(estado.segundosRestantes / 60).toString().padStart(2, "0");
+    const seg = (estado.segundosRestantes % 60).toString().padStart(2, "0");
+    document.getElementById("timer").textContent = `${min}:${seg}`;
+}
+
+// ---------- PASO 5: ENVIAR Y MOSTRAR RESULTADO ----------
+async function finalizarTest() {
+    clearInterval(estado.timerInterval);
+
+    const respuestas = estado.preguntas.map((p) => ({
+        idPregunta: p.id,
+        opcionElegida: estado.respuestas[p.id] || null,
+    }));
+
+    Swal.fire({ title: "Calificando...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+    try {
+        const resp = await fetch(`${API_BASE}/resultado`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                idEstudiante: estado.idEstudiante,
+                subtestId: estado.subtestSeleccionado.id,
+                tipoTest: estado.subtestSeleccionado.tipo,
+                respuestas,
+            }),
+        });
+
+        const data = await resp.json();
+        Swal.close();
+
+        if (!resp.ok) {
+            Swal.fire({ icon: "error", title: "Error al calificar", text: data.error, confirmButtonColor: "#0a0a0a" });
+            return;
+        }
+
+        document.getElementById("res-aciertos").textContent = data.aciertos;
+        document.getElementById("res-errores").textContent = data.errores;
+        document.getElementById("res-puntaje").textContent = data.puntajeDirecto;
+        document.getElementById("res-percentil").textContent = data.percentil;
+
+        mostrarPaso("step-resultado");
+    } catch (err) {
+        Swal.close();
+        Swal.fire({
+            icon: "error",
+            title: "Sin conexión",
+            text: "No se pudo enviar el resultado al servidor.",
+            confirmButtonColor: "#0a0a0a",
+        });
+    }
+}

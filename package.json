@@ -1,0 +1,14 @@
+{
+  "name": "numerico-backend",
+  "version": "1.0.0",
+  "description": "Servidor Node/Express que conecta el frontend del estudiante con la base de datos bfanumericobd (PostgreSQL) del proyecto OpenXava numerico.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.11.5",
+    "cors": "^2.8.5"
+  }
+}

@@ -48,6 +48,7 @@ public class EstudianteEvaluado {
     private String correoElectronico;
 
     @Required
+    @Enumerated(EnumType.STRING)
     private Sexo sexo;
 
     public enum Sexo { M, F }
