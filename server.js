@@ -201,5 +201,5 @@ app.post("/api/resultado", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor numerico corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor numerico corriendo en http://localhost:${PORT}/test.html`);
 });
